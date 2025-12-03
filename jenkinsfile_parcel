@@ -1,40 +1,23 @@
 pipeline {
     agent { label 'java' }
-tools {
-  jkd 'JDK17'
-  maven 'maven'
-}
     stages {
-        stage('Checkout') {
-            steps {
-                sh "rm -rf Parcel-service"
-                sh "git clone 'https://github.com/vinayak432/Parcel-service.git'"
-            }
-        }
+      //  stage('Setup Environment') {
+           // steps {
+         //       sh './Env_setup.sh'
+       //     }
+     //   } 
 
-        
- 
         stage('Build') {
             steps {
-                sh "mvn clean package"
+                sh 'mvn clean install' 
             }
         }
 
-        stage('Deploy to Tomcat') {
-            steps {
-                sh """
-                  # adjust WAR name if Maven uses versioned file name
-                  echo 'Cleaning old deployment'
-                  sudo rm -rf /opt/tomcat10/webapps/news-app /opt/tomcat10/webapps/news-app*.war
+        stage('Application') { 
+            steps { 
+                sh 'mvn spring-boot:run'
 
-                  echo 'Copying new WAR'
-                  sudo scp /home/slave1/workspace/jenkinsfilef12_feature-2/target/news-app.war /opt/tomcat10/webapps/
-
-                  echo 'Restarting Tomcat'
-                  sudo /opt/tomcat10/bin/shutdown.sh || true
-                  sleep 2
-                  sudo /opt/tomcat10/bin/startup.sh
-                """
+               // sh 'java -jar target/simple-parcel-service-app-1.0-SNAPSHOT.jar'
             }
         }
     }
