@@ -15,7 +15,15 @@ pipeline {
 
         stage('Application') { 
             steps { 
-                sh 'mvn spring-boot:run'
+
+            sh 'echo '"Restarting Tomcat"'
+            sh 'sudo /opt/tomcat10/bin/shutdown.sh || true'
+            sh 'sleep 2'
+                  sh 'sudo /opt/tomcat10/bin/startup.sh'
+
+
+
+            sh 'mvn spring-boot:run'
 
                // sh 'java -jar target/simple-parcel-service-app-1.0-SNAPSHOT.jar'
             }
