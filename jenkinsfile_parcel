@@ -19,13 +19,41 @@ pipeline {
             steps {
                 sh 'mvn clean package -DskipTests=false'
             }
-        }
-
-        stage('Archive Artifact') {
+        } 
+       // simple-parcel-service-app-1.0-SNAPSHOT.jar
+        stage('Push the artifacts into JFrog Artifactory') {
             steps {
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                script {
+                    // Define WAR file path
+                    def WAR_FILE = "${env.WORKSPACE}/target/simple-parcel-service-app-1.0-SNAPSHOT.jar"
+
+                    // Current timestamp
+                    def currentDate = new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm").format(new Date())
+
+                    // Path inside Artifactory
+                    def targetPath = "feature_release1/${currentDate}/"
+
+                    rtUpload(
+                        serverId: "jfrog",
+                        spec: """{
+                            "files": [
+                                {
+                                    "pattern": "${WAR_FILE}",
+                                    "target": "${targetPath}"
+                                }
+                            ]
+                        }"""
+                    )
+                }
             }
         }
+        
+
+        //stage('Archive Artifact') {
+          //  steps {
+        //        archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+          //  }
+        //}
 
         stage('Run Application') {
             steps {
